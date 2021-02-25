@@ -1,43 +1,28 @@
-from Vk import *
-from Yandex import *
+import Vk
+import Yandex
 
-import requests
 import json
-
-with open('token_vk.txt', 'r') as file_object:
-    token_vk = file_object.read().strip()
-
-with open('token_yandex.txt', 'r') as file_object:
-    token_yandex = file_object.read().strip()
 
 version = '5.126'
 
 
 def main():
     user_id = input('Введите id пользователя: ') or None
-    user_input = input('Введите Yandex токен: ')
-    #     token_yandex = user_input
+    token_vk = input('Введите VK токен: ')
+    token_yandex = input('Введите Yandex токен: ')
     folder_name = input('Введите имя папки: ')
     photos_number = input('Сколько фотографий сохранить на диск: ')
 
-    with open('token_vk.txt', 'r') as file_object:
-        token_vk = file_object.read().strip()
-
-    version = '5.126'
-
-    user = VkUser(token_vk, version, user_id)
+    user = Vk.VkUser(token_vk, version, user_id)
     res = user.get_photos()
 
-    i = 0
-    while i == 0:
-        i = 1
-        try:
-            upload_to_yandex(res, folder_name, photos_number)
-        except requests.HTTPError:
+    while True:
+        if Yandex.upload_to_yandex(res, token_yandex, folder_name, photos_number) is False:
             print('Папка с таким имеменем уже существует')
-            i = 0
-            user_input = input('Введите имя папки: ')
-            folder_name = user_input
+            folder_name = input('Введите имя папки: ')
+        else:
+            Yandex.upload_to_yandex(res, token_yandex, folder_name, photos_number)
+            break
 
     with open('photos.json', 'w') as f:
         json.dump(res[1], f)

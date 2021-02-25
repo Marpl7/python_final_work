@@ -1,6 +1,3 @@
-with open('token_yandex.txt', 'r') as file_object:
-    token_yandex = file_object.read().strip()
-
 import requests
 import time
 from tqdm import tqdm
@@ -12,7 +9,7 @@ class YaUploader:
 
     def upload(self, folder_name, file_name, file):
         """Метод загружает файл file на яндекс диск"""
-        TOKEN = token_yandex
+        TOKEN = self.token_yandex
         HEADERS = {
             'Authorization': f'OAuth {TOKEN}'
         }
@@ -36,7 +33,7 @@ class YaUploader:
     def create_folder(self, folder_name):
         """Метод создает папку folder_name на яндекс диск"""
 
-        TOKEN = token_yandex
+        TOKEN = self.token_yandex
         HEADERS = {
             'Authorization': f'OAuth {TOKEN}'
         }
@@ -56,7 +53,7 @@ class YaUploader:
 """"Загружает файлы на Yandex Disk, по умолчанию папка для загрузки - vk_photos, кол-во фотографий = 5"""
 
 
-def upload_to_yandex(photos, folder_name='vk_photos', photos_number=5):
+def upload_to_yandex(photos, token_yandex, folder_name='vk_photos', photos_number=5):
     photos_urls = photos[0]
     file_names = [file['file_name'] for file in photos[1]]
 
@@ -76,7 +73,10 @@ def upload_to_yandex(photos, folder_name='vk_photos', photos_number=5):
     if folder_name == '':
         folder_name = 'vk_photos'
 
-    uploader.create_folder(folder_name)
+    try:
+        uploader.create_folder(folder_name)
+    except requests.HTTPError:
+        return False
 
     i = 0
 
